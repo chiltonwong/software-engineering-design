@@ -1,0 +1,106 @@
+/*桌号*/
+.table{
+  padding: 40px 0px 0px 30px;
+}
+
+.table-head{
+  margin-right: 20px;
+  font-size: 16px;
+  margin-top: 4px;
+  float: left;
+}
+
+
+.tableinput{
+  width: 50px;
+  height: 25px;
+  display: inline-block;
+  border: 1px solid #ccc;
+  vertical-align: middle;
+  text-align: center;
+  line-height: 25px;
+  font-size: 14px;
+}
+
+.table-arrow{
+    width: 30px;
+    height: 25px;
+    margin-left: -1px;
+    display: inline-block;
+    border: 1px solid #ccc;
+    text-align: center;
+    line-height: 35px;
+    vertical-align: middle;
+}
+
+
+/*备注窗口*/
+.beizhu{
+  padding: 30px 40px 40px 30px;
+  border-bottom: 1px solid #aaa;
+}
+.beizhu-text{
+  margin-top: 4px;
+  margin-right: 20px;
+  font-size: 16px;
+  float: left;
+}
+.beizhu-input{
+  padding-left: 10px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  width:95%;
+  background:#F2F2F2;
+  padding:10px;
+  height:80px;
+}
+
+/*底部去支付界面*/
+/*底部提交订单部分界面*/
+.order-view{
+  position: fixed;
+  display: flex;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  height: 45px;
+}
+
+.order-number{
+  background-color: #eee;
+  width: 50%;
+  color:#ff2d2d;
+  text-align: center;
+  line-height: 45px;
+}
+
+.cart{
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  top: 13px;
+  left:19px;
+  
+}
+
+.order-number-text{
+  position: absolute;
+  width: 20px; 
+  height: 20px;
+  display: block;
+  font-size: 14px;
+  border-radius: 10px;
+  background-color: #ff2d2d;
+  color: #fff;
+  line-height: 22px;
+  left: 35px;
+  top: 5px;
+}
+
+.submit-order{
+  width: 50%;
+  line-height: 45px;
+  text-align: center;
+  color:#fff;
+  background-color:rgb(19, 189, 19);
+}

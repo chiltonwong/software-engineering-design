@@ -1,0 +1,304 @@
+package cn.ChaosWong.flash.service.system;
+
+
+import cn.ChaosWong.flash.bean.entity.system.Menu;
+import cn.ChaosWong.flash.bean.enumeration.BizExceptionEnum;
+import cn.ChaosWong.flash.bean.exception.ApplicationException;
+import cn.ChaosWong.flash.bean.vo.node.*;
+import cn.ChaosWong.flash.dao.system.MenuRepository;
+import cn.ChaosWong.flash.service.BaseService;
+import cn.ChaosWong.flash.utils.Lists;
+import cn.ChaosWong.flash.utils.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+
+@Service
+public class MenuService extends BaseService<Menu, Long, MenuRepository> {
+
+    private Logger logger = LoggerFactory.getLogger(MenuService.class);
+    @Autowired
+    private MenuRepository menuRepository;
+
+    @Override
+    public void delete(Long menuId) {
+
+        menuRepository.deleteById(menuId);
+
+        menuRepository.deleteRelationByMenu(menuId);
+
+    }
+
+    public void delMenuContainSubMenus(Long menuId) {
+        Menu menu = get(menuId);
+
+        List<Menu> menus = menuRepository.findByPcodesLike("%[" + menu.getCode() + "]%");
+        menuRepository.deleteAll(menus);
+
+        delete(menuId);
+
+    }
+
+
+    public List<MenuNode> getMenus() {
+        List<MenuNode> list = transferMenuNode(menuRepository.getMenus());
+        List<MenuNode> result = generateTree(list);
+        for (MenuNode menuNode : result) {
+            if (!menuNode.getChildren().isEmpty()) {
+                sortTree(menuNode.getChildren());
+                for (MenuNode menuNode1 : menuNode.getChildren()) {
+                    if (!menuNode1.getChildren().isEmpty()) {
+                        sortTree(menuNode1.getChildren());
+                    }
+                }
+            }
+        }
+        sortTree(result);
+        return result;
+    }
+
+
+    public List<RouterMenu> getSideBarMenus(List<Long> roleIds) {
+        StringBuilder builder  = new StringBuilder();
+         for(int i=0;i<roleIds.size();i++){
+             if(i==roleIds.size()-1){
+                 builder.append(roleIds.get(i));
+             }else {
+                 builder.append(roleIds.get(i)).append(",");
+             }
+         }
+        List<RouterMenu> list = transferRouteMenu(menuRepository.getMenusByRoleids(builder.toString()));
+        List<RouterMenu> result = generateRouterTree(list);
+        for (RouterMenu menuNode : result) {
+            if (!menuNode.getChildren().isEmpty()) {
+                sortRouterTree(menuNode.getChildren());
+                for (RouterMenu menuNode1 : menuNode.getChildren()) {
+                    if (!menuNode1.getChildren().isEmpty()) {
+                        sortRouterTree(menuNode1.getChildren());
+                    }
+                }
+            }
+        }
+        sortRouterTree(result);
+        return result;
+    }
+
+    private void sortTree(List<MenuNode> list) {
+        Collections.sort(list, new Comparator<MenuNode>() {
+            @Override
+            public int compare(MenuNode o1, MenuNode o2) {
+                return o1.getNum() - o2.getNum();
+            }
+        });
+    }
+
+    private void sortRouterTree(List<RouterMenu> list) {
+        Collections.sort(list, new Comparator<RouterMenu>() {
+            @Override
+            public int compare(RouterMenu o1, RouterMenu o2) {
+                return o1.getNum() - o2.getNum();
+            }
+        });
+    }
+
+    private List<MenuNode> generateTree(List<MenuNode> list) {
+        List<MenuNode> result = new ArrayList<>(20);
+        Map<Long, MenuNode> map = Lists.toMap(list, "id");
+        for (Map.Entry<Long, MenuNode> entry : map.entrySet()) {
+            MenuNode menuNode = entry.getValue();
+
+            if (menuNode.getParentId().intValue() != 0) {
+                MenuNode parentNode = map.get(menuNode.getParentId());
+                parentNode.getChildren().add(menuNode);
+            } else {
+                result.add(menuNode);
+            }
+        }
+        return result;
+
+    }
+
+    private List<RouterMenu> generateRouterTree(List<RouterMenu> list) {
+        List<RouterMenu> result = new ArrayList<>(20);
+        Map<Long, RouterMenu> map = Lists.toMap(list, "id");
+        for (Map.Entry<Long, RouterMenu> entry : map.entrySet()) {
+            RouterMenu menuNode = entry.getValue();
+
+            if (menuNode.getParentId().intValue() != 0) {
+                RouterMenu parentNode = map.get(menuNode.getParentId());
+                parentNode.getChildren().add(menuNode);
+            } else {
+                result.add(menuNode);
+            }
+        }
+        return result;
+
+    }
+
+    private List<MenuNode> transferMenuNode(List menus) {
+        List<MenuNode> menuNodes = new ArrayList<>();
+        try {
+            for (int i = 0; i < menus.size(); i++) {
+                Object[] source = (Object[]) menus.get(i);
+                MenuNode menuNode = new MenuNode();
+                menuNode.setId(Long.valueOf(source[0].toString()));
+                menuNode.setIcon(String.valueOf(source[1]));
+                menuNode.setParentId(Long.valueOf(source[2].toString()));
+                menuNode.setName(String.valueOf(source[3]));
+                menuNode.setUrl(String.valueOf(source[4]));
+                menuNode.setLevels(Integer.valueOf(source[5].toString()));
+                menuNode.setIsmenu(Integer.valueOf(source[6].toString()));
+                menuNode.setNum(Integer.valueOf(source[7].toString()));
+                menuNode.setCode(String.valueOf(source[8]));
+                menuNode.setStatus(Integer.valueOf(source[9].toString()));
+                if (source[10] != null) {
+                    menuNode.setComponent(source[10].toString());
+                }
+                if("1".equals(source[11].toString())){
+                    menuNode.setHidden(true);
+                }else{
+                    menuNode.setHidden(false);
+                }
+                menuNodes.add(menuNode);
+
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return menuNodes;
+    }
+
+    private List<RouterMenu> transferRouteMenu(List menus) {
+        List<RouterMenu> routerMenus = new ArrayList<>();
+        try {
+            for (int i = 0; i < menus.size(); i++) {
+                Object[] source = (Object[]) menus.get(i);
+                if (source[10] == null) {
+                    continue;
+                }
+
+                RouterMenu menu = new RouterMenu();
+                menu.setPath(String.valueOf(source[4]));
+                menu.setName(String.valueOf(source[3]));
+                MenuMeta meta = new MenuMeta();
+                meta.setIcon(String.valueOf(source[1]));
+
+                meta.setTitle(String.valueOf(source[8]));
+
+
+                menu.setNum(Integer.valueOf(source[7].toString()));
+                menu.setParentId(Long.valueOf(source[2].toString()));
+                menu.setComponent(source[10].toString());
+                menu.setId(Long.valueOf(source[0].toString()));
+                menu.setMeta(meta);
+                if("1".equals(source[11].toString())){
+                    menu.setHidden(true);
+                }
+                routerMenus.add(menu);
+
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return routerMenus;
+    }
+
+    public List<ZTreeNode> menuTreeList(List<Long> menuIds) {
+        List<ZTreeNode> nodes = new ArrayList<>();
+        if (menuIds == null) {
+            List list = menuRepository.menuTreeList();
+
+            for (int i = 0; i < list.size(); i++) {
+                Object[] source = (Object[]) list.get(i);
+                ZTreeNode node = new ZTreeNode();
+                node.setId(Long.valueOf(source[0].toString()));
+                node.setpId(Long.valueOf(source[1].toString()));
+                node.setName(source[2].toString());
+                node.setIsOpen(Boolean.valueOf(source[3].toString()));
+                nodes.add(node);
+            }
+        } else {
+            nodes = menuTreeListByMenuIds(menuIds);
+        }
+        return nodes;
+    }
+
+    private List<ZTreeNode> menuTreeListByMenuIds(List<Long> menuIds) {
+        List list = menuRepository.menuTreeListByMenuIds(menuIds);
+        List<ZTreeNode> nodes = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            Object[] source = (Object[]) list.get(i);
+            ZTreeNode node = new ZTreeNode();
+            node.setId(Long.valueOf(source[0].toString()));
+            node.setpId(Long.valueOf(source[1].toString()));
+            node.setName(source[2].toString());
+            node.setIsOpen(Boolean.valueOf(source[3].toString()));
+            node.setChecked(Boolean.valueOf(source[4].toString()));
+            nodes.add(node);
+        }
+        return nodes;
+    }
+
+    public void menuSetPcode(Menu menu) {
+        if (StringUtil.isEmpty(menu.getPcode()) || "0".equals(menu.getPcode())) {
+            menu.setPcode("0");
+            menu.setPcodes("[0],");
+            menu.setLevels(1);
+        } else {
+
+            Menu pMenu = menuRepository.findByCode(menu.getPcode());
+            Integer pLevels = pMenu.getLevels();
+            menu.setPcode(pMenu.getCode());
+
+
+            if (menu.getCode().equals(menu.getPcode())) {
+                throw new ApplicationException(BizExceptionEnum.MENU_PCODE_COINCIDENCE);
+            }
+
+            menu.setLevels(pLevels + 1);
+            menu.setPcodes(pMenu.getPcodes() + "[" + pMenu.getCode() + "],");
+        }
+    }
+
+    public List<Node> generateMenuTreeForRole(List<ZTreeNode> list) {
+
+        List<Node> nodes = new ArrayList<>(20);
+        for (ZTreeNode menu : list) {
+            Node permissionNode = new Node();
+            permissionNode.setId(menu.getId());
+            permissionNode.setName(menu.getName());
+            permissionNode.setPid(menu.getpId());
+            permissionNode.setChecked(menu.getChecked());
+            nodes.add(permissionNode);
+        }
+        for (Node permissionNode : nodes) {
+            for (Node child : nodes) {
+                if (child.getPid().intValue() == permissionNode.getId().intValue()) {
+                    permissionNode.getChildren().add(child);
+                }
+            }
+        }
+        List<Node> result = new ArrayList<>(20);
+        for (Node node : nodes) {
+            if (node.getPid().intValue() == 0) {
+                result.add(node);
+            }
+        }
+        return result;
+
+
+    }
+
+
+    public List<Long> getMenuIdsByRoleId(Integer roleId) {
+        return menuRepository.getMenuIdsByRoleId(roleId);
+    }
+
+    public List<String> getResUrlsByRoleId(Long roleId) {
+        return menuRepository.getResUrlsByRoleId(roleId);
+    }
+}

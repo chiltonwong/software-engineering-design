@@ -1,0 +1,36 @@
+<!--选择桌号与填写备注-->
+<view>
+  <view class='table'>
+    <view class='table-head'>桌号</view>
+
+    <picker class='pick-tableNumber'
+    mode='selector'
+    range='{{tables}}'
+    bindchange='bindPickerChange'
+    value='{{tableNumbers}}'
+    >
+      <view class='tableinput'>{{tables[tableNumbers]}}</view>
+      <span class="table-arrow">﹀</span>
+    </picker>
+  </view>
+
+
+  <view class='beizhu'>
+    <view class='beizhu-text'>备注</view>
+    <input class='beizhu-input' placeholder="如有特殊需要请备注"></input>
+  </view>
+
+
+<!--支付-->
+  <view class='order-view' style="display{{modalHidden? 'flex':'none'}};">
+    <view class='order-number'>
+      <image class='cart' src='../../imgs/cart.png' mode='scaleToFill'></image>
+      <span class='order-number-text'>{{orderNumber}}</span>
+      <span>￥{{sumMoney}}</span>
+    </view>
+    <view class='submit-order' bindtap='payforit'>去支付</view>
+  </view>
+
+
+
+</view>

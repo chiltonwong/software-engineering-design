@@ -1,0 +1,91 @@
+/* pages/list/list.wxss */
+
+page{
+  background: #F8F8F8
+}
+
+
+/*显示订单详情页面*/
+.cart-list-box{
+  background:#FFFFFF;
+  display:flex;
+  font-size:15px;
+  border-bottom:1px #E3E3E3 solid;
+}
+.list-info{
+  width:50%;
+  padding:5px 15px;
+}
+.list-info-size{
+  font-size:12px;
+  color:#B1B1B1;
+}
+
+.order-info{
+  background: white;
+  margin-top:10px;
+}
+.order-info-title{
+  font-size:12px;
+  color: #D1D1D1;
+  padding: 12px;
+  border-bottom: 1px #E3E3E3 solid
+}
+.order-sum{
+  height:30px;
+  padding:5px 15px;
+  font-size:14px;
+}
+.order-sum-number{
+  font-size:14px;
+  float:right;
+}
+
+/*底部去支付界面*/
+.order-view{
+  position: fixed;
+  display: flex;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  height: 45px;
+}
+
+.order-number{
+  background-color: #eee;
+  width: 50%;
+  color:#ff2d2d;
+  text-align: center;
+  line-height: 45px;
+}
+
+.cart{
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  top: 13px;
+  left:19px;
+  
+}
+
+.order-number-text{
+  position: absolute;
+  width: 20px; 
+  height: 20px;
+  display: block;
+  font-size: 14px;
+  border-radius: 10px;
+  background-color: #ff2d2d;
+  color: #fff;
+  line-height: 22px;
+  left: 35px;
+  top: 5px;
+}
+
+.submit-order{
+  width: 50%;
+  line-height: 45px;
+  text-align: center;
+  color:#fff;
+  background-color:rgb(19, 189, 19);
+}

@@ -1,0 +1,12 @@
+{
+  "codeConfig": {
+    "type": "cn.ChaosWong.flash.code.CodeConfig",
+    "fields": {
+      entityModel: "core",
+      daoModel: "core",
+      serviceModel: "core",
+      controllerModel: "api",
+      viewModel: "flash-vue-admin"
+    }
+  }
+}

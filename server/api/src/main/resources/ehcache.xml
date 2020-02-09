@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="ehcache.xsd"
+         updateCheck="false" monitoring="autodetect"
+         dynamicConfig="true" >
+         
+    <diskStore path="java.io.tmpdir/ehcache"/>
+
+    <defaultCache
+            maxElementsInMemory="50000"
+            eternal="false"
+            timeToIdleSeconds="3600"
+            timeToLiveSeconds="3600"
+            overflowToDisk="true"
+            diskPersistent="false"
+            diskExpiryThreadIntervalSeconds="120"
+    />
+
+    <!-- 全局变量：永不过期-->
+    <cache name="CONSTANT"
+    	   maxElementsInMemory="50000"
+           eternal="true"
+    	   clearOnFlush="false"
+           overflowToDisk="true"
+           diskSpoolBufferSizeMB="1024"
+           maxElementsOnDisk="100000"
+           diskPersistent="false"
+           diskExpiryThreadIntervalSeconds="120"
+           memoryStoreEvictionPolicy="LFU"
+           transactionalMode="off">
+    </cache>
+    <!--SESSION缓存-->
+    <cache name="SESSION"
+           maxElementsInMemory="50000"
+           timeToIdleSeconds="3600"
+           timeToLiveSeconds="3600"
+           eternal="true"
+           clearOnFlush="false"
+           overflowToDisk="true"
+           diskSpoolBufferSizeMB="1024"
+           maxElementsOnDisk="100000"
+           diskPersistent="false"
+           diskExpiryThreadIntervalSeconds="120"
+           memoryStoreEvictionPolicy="LFU"
+           transactionalMode="off">
+    </cache>
+
+    <!--app数据缓存-->
+    <cache name="APPLICATION"
+           maxElementsInMemory="50000"
+           timeToIdleSeconds="3600"
+           timeToLiveSeconds="3600"
+           eternal="true"
+           clearOnFlush="false"
+           overflowToDisk="true"
+           diskSpoolBufferSizeMB="1024"
+           maxElementsOnDisk="100000"
+           diskPersistent="false"
+           diskExpiryThreadIntervalSeconds="120"
+           memoryStoreEvictionPolicy="LFU"
+           transactionalMode="off">
+    </cache>
+
+</ehcache>
+
+    <!--
+	    maxElementsInMemory="10000"
+		external="false"
+		timeToLiveSeconds="3600"
+		timeToIdleSeconds="3600"
+		
+		这两个参数很容易误解，看文档根本没用，我仔细分析了ehcache的代码。结论如下：
+		1、timeToLiveSeconds的定义是：以创建时间为基准开始计算的超时时长；
+		2、timeToIdleSeconds的定义是：在创建时间和最近访问时间中取出离现在最近的时间作为基准计算的超时时长；
+		3、如果仅设置了timeToLiveSeconds，则该对象的超时时间=创建时间+timeToLiveSeconds，假设为A；
+		4、如果没设置timeToLiveSeconds，则该对象的超时时间=min(创建时间，最近访问时间)+timeToIdleSeconds，假设为B；
+		5、如果两者都设置了，则取出A、B最少的值，即min(A,B)，表示只要有一个超时成立即算超时。
+		
+		overflowToDisk="true"
+		diskSpoolBufferSizeMB
+		maxElementsOnDisk
+		diskPersistent
+		diskExpiryThreadIntervalSeconds
+		memoryStoreEvictionPolicy="LRU"
+        clearOnFlush
+        maxEntriesLocalHeap="0"
+        maxEntriesLocalDisk="1000"
+    -->
